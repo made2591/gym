@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+        <title>{% block title %}{% endblock %} Gym</title>
+        <!-- CSS  -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link href="{{ app.asset_path }}/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+        <link href="{{ app.asset_path }}/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+        <link href="{{ app.asset_path }}/css/jquery-ui.min.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+        {#<link href="{{ app.asset_path }}/css/tablednd.css" type="text/css" rel="stylesheet" media="screen,projection"/>#}
+    {% endblock %}
+</head>
+<body>
+{% block nav %}
+<ul id="dropdown1" class="dropdown-content">
+    <li><a href="/list/exercise">Vai a Esercizi</a></li>
+    <li><a href="/list/musclegroup">Vai a Gruppi muscolari</a></li>
+    <li><a href="/list/training">Vai a Allenamenti</a></li>
+    <li><a href="/list/schedule">Vai a Schede palestra</a></li>
+    <li class="divider"></li>
+    <li><a href="#">Da definire</a></li>
+</ul>
+<nav>
+    <div class="nav-wrapper container">
+        <a href="/" class="brand-logo">Gym</a>
+        <ul class="right hide-on-med-and-down">
+            <li><form action="/search" method="post">
+                    <div class="input-field" id="div_search">
+                        <input id="searchField" type="search" name="searchField" value="Cerca contenuto" required>
+                        <label for="search"><i class="material-icons">search</i></label>
+                        <i class="material-icons">close</i>
+                    </div>
+                </form>
+            </li>
+            <li><a href="/"><i class="material-icons left">view_module</i>Pagina iniziale</a></li>
+            <!-- Dropdown Trigger -->
+            <li><a class="dropdown-button" href="#!" data-activates="dropdown1">Opzioni disponibili<i class="material-icons right">arrow_drop_down</i></a></li>        </ul>
+    </div>
+</nav>
+{% endblock %}
+<div class="container">
+    {% block container %}{% endblock %}
+</div>
+
+<footer class="page-footer orange">
+    {% block footer %}
+    <div class="container">
+        <div class="row">
+            <div class="col l6 s12">
+                <h5 class="white-text">Bio</h5>
+                <p class="grey-text text-lighten-4">Chi sono? Un tizio stufo di chi guarda solo le ragazze in palestra: volete andare a baccagliare? Andate in discoteca.</p>
+            </div>
+            <div class="col l3 s12">
+                <h5 class="white-text">Strumenti</h5>
+                <ul>
+                    <li><a class="white-text" href="http://silex.sensiolabs.org">Silex</a></li>
+                    <li><a class="white-text" href="http://propelorm.org">Propel</a></li>
+                    <li><a class="white-text" href="http://materializecss.com">Materialize</a></li>
+                    <li><a class="white-text" href="http://vagrantup.com">Vagrant</a></li>
+                </ul>
+            </div>
+            <div class="col l3 s12">
+                <h5 class="white-text">Contattami</h5>
+                <ul>
+                    <li><a class="white-text" href="#">Matteo Madeddu</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            Realizzato da <a class="orange-text text-lighten-3" href="http://matteomadeddu.com">Matteo Madeddu</a>
+        </div>
+    </div>
+    {% endblock %}
+</footer>
+
+
+<!--  Scripts-->
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="{{ app.asset_path }}/js/materialize.js"></script>
+<script src="{{ app.asset_path }}/js/init.js"></script>
+<script src="{{ app.asset_path }}/js/jquery-ui.min.js"></script>
+{#<script src="{{ app.asset_path }}/js/jquery-sortable.js"></script>#}
+<script src="{{ app.asset_path }}/js/jquery.tablednd.js"></script>
+<script>
+    $("#searchField").bind('blur', function() {
+        $('#searchField').val('Cerca contenuto');
+    }).bind('click', function(){
+        $('#searchField').val('');
+    });
+</script>
+{% block javascripts %}{% endblock %}
+
+</body>
+</html>

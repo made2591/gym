@@ -1,0 +1,21 @@
+{% extends "base.html.twig" %}
+
+{% block title %} Home {% endblock %}
+
+{% block container %}
+    <div class="row large">
+        <p class="flow-text center-align">Ci sono {{ schedules.count() }}</p>
+        {% for schedule in schedules.getResults() %}
+            <p class="flow-text center-align">{{ schedule.name }}</p>
+        {% endfor %}
+    </div>
+    <div class="row center-align">
+        <ul class="pagination">
+            <li {% if actualpage > 1 %}class="disabled"{% endif %}><a href="/list/schedule/{{ actualpage - 1}}"><i class="material-icons">chevron_left</i></a></li>
+            {% for page, index in schedules.getLinks(10) %}
+                <li class="active"><a href="/list/schedule/{{ index }}">{{ index }}</a></li>
+            {% endfor %}
+            <li class="waves-effect"><a href="/list/schedule/{{ actualpage + 1}}"><i class="material-icons">chevron_right</i></a></li>
+        </ul>
+    </div>
+{% endblock %}

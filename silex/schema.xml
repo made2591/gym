@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<database name="gym" defaultIdMethod="native" namespace='Gym' defaultPhpNamingMethod="underscore">
+    <table name="exercise_name" idMethod="native" identifierQuoting="true">
+        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
+        <column name="name" type="VARCHAR" size="255" required="true"/>
+        <column name="muscle_group" type="ENUM" valueSet="Gambe, Polpacci, Addome, Bicipiti, Tricipiti, Dorsali, Pettorali, Cardio, Spalle" required="true"/>
+    </table>
+    <table name="exercise" idMethod="native" identifierQuoting="true">
+        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
+        <column name="ex_name_id" type="INTEGER" required="true"/>
+        <column name="ex_name_s2_id" type="INTEGER"/>
+        <column name="ex_name_s3_id" type="INTEGER"/>
+        <column name="day" type="ENUM" valueSet="1, 2, 3, 4, 5, Tutti" required="true"/>
+        <column name="kind" type="ENUM" valueSet="Normale, Superserie, Piramidale" required="true"/>
+        <column name="serie" type="ENUM" valueSet="1, 2, 3, 4, 5, 6, 7, 8, 9, 10" required="true"/>
+        <column name="repetition" type="VARCHAR" size="30" required="true"/>
+        <column name="difficulty" type="INTEGER" size="1" required="true" defaultValue="3"/>
+        <column name="exec_weights" type="VARCHAR" size="90"/>
+        <column name="exec_times" type="VARCHAR" size="90"/>
+        <column name="pause_times" type="VARCHAR" size="90"/>
+        <column name="schedule_id" type="INTEGER" required="true"/>
+        <foreign-key foreignTable="exercise_name" phpName="ex_name_id">
+            <reference local="ex_name_id" foreign="id"/>
+        </foreign-key>
+        <foreign-key foreignTable="exercise_name" phpName="ex_name_s2_id">
+            <reference local="ex_name_s2_id" foreign="id"/>
+        </foreign-key>
+        <foreign-key foreignTable="exercise_name" phpName="ex_name_s3_id">
+            <reference local="ex_name_s3_id" foreign="id"/>
+        </foreign-key>
+        <foreign-key foreignTable="schedule">
+            <reference local="schedule_id" foreign="id"/>
+        </foreign-key>
+    </table>
+    <table name="schedule" idMethod="native" identifierQuoting="true">
+        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
+        <column name="name" type="VARCHAR" size="255"/>
+        <column name="from" type="DATE" create_at="now"/>
+        <column name="to" type="DATE"/>
+    </table>
+</database>

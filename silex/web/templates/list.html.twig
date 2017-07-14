@@ -1,0 +1,168 @@
+{% extends "base.html.twig" %}
+
+{% block title %} Home {% endblock %}
+
+{% block container %}
+
+    {% if type == 'schedule' %}
+        <p class="flow-text center-align">Ci sono {{ schedules.count() }} schede nel database</p>
+        <div class="row">
+            <ul class="collection">
+            {% for schedule in schedules.getResults() %}
+                <li class="collection-item avatar">
+                    <i class="material-icons circle green">insert_chart</i>
+                    <span class="title"><a href="/list/scheduletrainings/{{ schedule.id }}">{{ schedule.name }}</a></span>
+                    <p>{{ schedule.getTrainings()|length }} allenamenti</p>
+                    <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+        <div class="row center-align">
+            <ul class="pagination">
+                {% if actualpage > 1 %}<li class="waves-effect"><a href="/list/schedule/{{ actualpage - 1}}"><i class="material-icons">chevron_left</i></a></li>{% endif %}
+                {% for page, index in schedules.getLinks(10) %}
+                    <li class="active"><a href="/list/schedule/{{ index }}">{{ index }}</a></li>
+                {% endfor %}
+                {% if actualpage < lastpage %}<li class="waves-effect"><a href="/list/schedule/{{ actualpage + 1}}"><i class="material-icons">chevron_right</i></a></li>{% endif %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if type == 'scheduletrainings' %}
+        <table class="bordered" style="width: 100%;" id="sorted_table">
+            <thead>
+            <tr>
+                <th data-field="name">Nome</th>
+                <th data-field="kind">Gruppo</th>
+                <th data-field="kind">Tipo</th>
+                <th data-field="serie">Serie</th>
+                <th data-field="repetition">Ripetizioni</th>
+                <th data-field="kind">Difficoltà</th>
+                <th data-field="repetition">Pesi</th>
+                <th data-field="repetition">Tempo</th>
+                <th data-field="repetition">Pausa</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for index, tr in trainings %}
+                <tr>
+                    <td colspan="10" class="center-align flow-text">Allenamento giorno {{ index }}</td>
+                </tr>
+                {% for ex in tr %}
+                <tr>
+                    <td>{{ ex.getex_name_id().name }}
+                        {% if ex.getex_name_s2_id() != null %} - {{ ex.getex_name_s2_id().name }}{% endif %}
+                        {% if ex.getex_name_s3_id() != null %} - {{ ex.getex_name_s3_id().name }}{% endif %}</td>
+                    <td>{{ ex.getex_name_id().getMuscleGroup() }}</td>
+                    <td>{{ ex.kind }}</td>
+                    <td>{{ ex.serie }}</td>
+                    <td>{{ ex.repetition }}</td>
+                    <td>{{ ex.difficulty }}</td>
+                    {% if ex.execWeights != null %}
+                        <td>{{ ex.execWeights }}</td>
+                    {% else %}
+                        <td style="text-align: center;">/</td>
+                    {% endif %}
+                    {% if ex.execTimes != null %}
+                        <td>{{ ex.execTimes }}</td>
+                    {% else %}
+                        <td style="text-align: center;">/</td>
+                    {% endif %}
+                    {% if ex.pauseTimes != null %}
+                        <td>{{ ex.pauseTimes }}</td>
+                    {% else %}
+                        <td style="text-align: center;">/</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if type == 'musclegroup' %}
+        {#<table class="striped">#}
+            {#<thead>#}
+            {#<tr>#}
+                {#<th data-field="name">Nome</th>#}
+                {#<th data-field="kind">Difficoltà</th>#}
+                {#<th data-field="execTime">Tempo esecuzione</th>#}
+            {#</tr>#}
+            {#</thead>#}
+
+            {#<tbody>#}
+            <div class="row">
+            {% for index, name in musclegroup %}
+                <div class="col s12 m4">
+                    <div class="card blue-grey darken-1">
+                        <div class="card-content white-text">
+                            <span class="card-title">{{ name }}</span>
+                            <div class="collection" style="cursor: pointer; !important;">
+                                {#{% for ex in mg.singleExercises %}#}
+                                    {#<a class="collection-item">{{ ex.name }}</a>#}
+                                {#{% endfor %}#}
+                            </div>
+                        </div>
+                        <div class="card-action">
+                            <a href="#">Simili</a>
+                            <a href="#">Difficoltà</a>
+                        </div>
+                    </div>
+                </div>
+                {#<tr>#}
+                    {#<td>{{ mg.name }}</td>#}
+                    {#<td>{{ mg.difficulty }}</td>#}
+                    {#{% if ex.execTimes != null %}#}
+                    {#<td>{{ ex.execTimes }}</td>#}
+                    {#{% else %}#}
+                    {#<td style="text-align: center;">/</td>#}
+                    {#{% endif %}#}
+                {#</tr>#}
+            {% endfor %}
+            </div>
+            {#</tbody>#}
+        {#</table>#}
+    {% endif %}
+
+    {% if type == 'exercise' %}
+        <table class="striped">
+            <thead>
+            <tr>
+                <th data-field="name">Nome</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for ex in exercises %}
+                <tr>
+                    <td>{{ ex.name }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="row center-align">
+            <ul class="pagination">
+                {% if actualpage > 1 %}<li class="waves-effect"><a href="/list/exercise/{{ actualpage - 1}}"><i class="material-icons">chevron_left</i></a></li>{% endif %}
+                {% for page, index in exercises.getLinks(10) %}
+                    <li class="active"><a href="/list/exercise/{{ index }}">{{ index }}</a></li>
+                {% endfor %}
+                {% if actualpage < lastpage %}<li class="waves-effect"><a href="/list/exercise/{{ actualpage + 1}}"><i class="material-icons">chevron_right</i></a></li>{% endif %}
+            </ul>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(document).ready(function(){
+            $('.collapsible').collapsible({
+                accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+            });
+            //$("#sorted_table").tableDnD();
+        });
+    </script>
+
+{% endblock %}

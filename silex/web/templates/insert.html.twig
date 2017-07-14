@@ -1,0 +1,603 @@
+{% extends "base.html.twig" %}
+
+{% block title %} Home {% endblock %}
+
+{% block container %}
+    <div class="row">
+        <br />
+        <form class="col s12" action="/insertion" method="post" id="insertSchedule">
+            <div class="row">
+                {#{% if exercise_names|length > 0 %}#}
+                <div id="exercise_name_div"></div>
+                <div class="input-field col s5">
+                    <select id="exercise_name" name="exercise_name" onclick="loadExerciseNameToList('specific');">
+                        {#{% for exercise_name in exercise_names %}#}
+                        {#<option value="{{ exercise_name.id }}">{{ exercise_name.name }}</option>#}
+                        {#{% endfor %}#}
+                    </select>
+                    <label for="exercise_name">Scegli esercizio</label>
+                    <p class="range-field">
+                        <label for="difficulty">Difficoltà</label><br/>
+                        <input type="range" name="difficulty" id="difficulty" min="0" max="5"/>
+                    </p>
+                </div>
+                <div class="input-field col s2">
+                    <p>
+                        <input class="with-gap" type="radio" id="normal" name="kind" value="normal" checked onclick="normalFunction();"/>
+                        <label for="normal">Normale</label>
+                        <input class="with-gap" type="radio" id="superserie" name="kind" value="superserie" onclick="superserieFunction();"/>
+                        <label for="superserie">Superserie</label>
+                        <input class="with-gap" type="radio" id="pyramidal" name="kind" value="pyramidal" onclick="pyramidalFunction();"/>
+                        <label for="pyramidal">Piramidale</label>
+                    </p>
+                </div>
+                <div class="input-field col s5" id="superserieDiv">
+                    <select id="exercise_name_2" name="exercise_name_2" disabled>
+                        {#{% for exercise_name in exercise_names %}#}
+                        {#<option value="{{ exercise_name.id }}">{{ exercise_name.name }}</option>#}
+                        {#{% endfor %}#}
+                    </select>
+                    <select id="exercise_name_3" name="exercise_name_3" disabled>
+                        {#{% for exercise_name in exercise_names %}#}
+                        {#<option value="{{ exercise_name.id }}">{{ exercise_name.name }}</option>#}
+                        {#{% endfor %}#}
+                    </select>
+                    <label for="exercise_name_2">Super serie 2-3° esercizio</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s1">
+                    <select id="serie" name="serie">
+                        {% for si in range(1, 10) %}
+                            <option value="{{ si }}">{{ si }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="serie">Serie</label>
+                </div>
+                <div class="input-field col s6">
+                    <input placeholder="Numero di ripetizioni* (es: 12 o 12-8-6-4, nel caso di serie piramidali)" id="repetition" name="repetition" type="text" class="validate">
+                    <label for="repetition">Numero di ripetizioni*</label>
+                </div>
+                <div class="input-field col s5">
+                    <input placeholder="Peso/i (es: 12 Kg o 12-8-6-4 Kg, nel caso di serie piramidali)" id="execWeights" name="execWeights" type="text" class="validate">
+                    <label for="execWeights">Peso/i</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s4">
+                    <select id="day" name="day">
+                        {% for si in range(1, 6) %}
+                            <option value="{% if si != 6 %}{{ si }}{% else %}Tutti{% endif %}">{% if si != 6 %}{{ si }}{% else %}Tutti{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="day">Giorno di allenamento</label>
+                </div>
+                <div class="input-field col s4">
+                    <input placeholder="Tempo esecuzione (es: 10 minuti)" id="execTimes" name="execTimes" type="text" class="validate">
+                    <label for="execTimes">Tempo esecuzione</label>
+                </div>
+                <div class="input-field col s4">
+                    <input placeholder="Tempo di pausa (es: 2 minuti)" id="pauseTimes" name="pauseTimes" type="text" class="validate">
+                    <label for="pauseTimes">Tempo di pausa</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s4">
+                    <input placeholder="Nome scheda (es: Scheda 1)" id="sc_name" name="sc_name" type="text" class="validate">
+                    <label for="sc_name">Nome scheda</label>
+                </div>
+                <div class="input-field col s4">
+                    <input type="date" placeholder="Data inizio scheda" class="datepicker" id="from_date_schedule" name="from">
+                </div>
+                <div class="input-field col s4">
+                    <input type="date" placeholder="Data fine scheda" class="datepicker" id="to_date_schedule" name="to">
+                </div>
+            </div>
+            <input type="hidden" id="type" name="type" value="{{ type }}"/>
+            <input type="hidden" id="sched_id" name="type" value=""/>
+            <div class="center-align">
+                <button data-target="addExerciseModal" class="btn modal-trigger waves-effect waves-light light-blue">Nuovo esercizio
+                    <i class="material-icons right">play_for_work</i>
+                </button>
+                <button class="btn waves-effect waves-light light-blue" onclick="return addExerciseToTable();">Aggiungi esercizio
+                    <i class="material-icons right">playlist_add</i>
+                </button>
+                <button data-target="confirmScheduleInsertion" class="btn modal-trigger waves-effect waves-light light-green">Salva scheda
+                    <i class="material-icons right">done</i>
+                </button>
+            </div>
+        </form>
+        <div id="addExerciseModal" class="modal">
+            <div class="modal-content">
+                <h4>Inserimento nuovo esercizio</h4>
+                <br />
+                <div class="input-field col s12">
+                    <input placeholder="Nome esercizio* (es: Pressa)" id="ex_name" name="ex_name" type="text" class="validate">
+                    <label for="ex_name">Nome esercizio*</label>
+                </div>
+                <div class="input-field col s12">
+                    <label for="name">Gruppi muscolari</label><br/>
+                    <p>
+                        {% for index, mg in muscle_groups %}
+                            <input type="radio" class="filled-in" id="mg_{{ index }}" value="{{ mg }}" name="muscle_group_list" {%  if index == 0 %}checked{% endif %}/>
+                            <label for="mg_{{ index }}" id="name_mg_{{ index }}" style="min-width: 91px;">{{ mg }}</label>&nbsp;&nbsp;&nbsp;
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn waves-effect waves-light modal-action modal-close light-blue" onclick="return addExerciseNameToList();">Aggiungi</button>
+                <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Chiudi</a>
+            </div>
+        </div>
+
+        <div id="confirmScheduleInsertion" class="modal">
+            <div class="modal-content">
+                <h4>Conferma inserimento scheda</h4>
+                <p>Sei sicuro di voler completare l'inserimento scheda?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn waves-effect waves-light modal-action modal-close light-green" onclick="return addSchedule();" name="insert">Completa</button>
+                <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Chiudi</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <p class="flow-text center-align">Gli esercizi che hai aggiunto finora</p>
+    </div>
+    <div class="row">
+        <table class="striped" style="width: 100%;" id="sorted_table">
+            <thead>
+            <tr>
+                <th data-field="name">Nome</th>
+                <th data-field="kind">Gruppo</th>
+                <th data-field="kind">Giorno</th>
+                <th data-field="kind">Tipo</th>
+                <th data-field="serie">Serie</th>
+                <th data-field="repetition">Ripetizioni</th>
+                <th data-field="kind">Difficoltà</th>
+                <th data-field="repetition">Pesi</th>
+                <th data-field="repetition">Tempo</th>
+                <th data-field="repetition">Pausa</th>
+            </tr>
+            </thead>
+
+            <tbody id="exercise_body_table">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="fixed-action-btn horizontal click-to-toggle" style="bottom: 45px; right: 24px;">
+        <a class="btn-floating btn-large red">
+            <i class="large mdi-navigation-menu"></i>
+        </a>
+        <ul>
+            <li><a class="btn-floating red {% if type == 'exercise' %} disabled {% endif %}" {% if type != 'exercise' %} href="/insert/exercise" {% endif %}><i class="material-icons">toc</i></a></li>
+            <li><a class="btn-floating green {% if type == 'musclegroup' %} disabled {% endif %}" {% if type != 'musclegroup' %} href="/insert/musclegroup" {% endif %}><i class="material-icons">view_stream</i></a></li>
+            <li><a class="btn-floating blue {% if type == 'schedule' %} disabled {% endif %}" {% if type != 'schedule' %} href="/insert/schedule" {% endif %}><i class="material-icons">view_week</i></a></li>
+        </ul>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+
+        function addSchedule() {
+
+            var add_sc = true;
+            var delayTime = 1000;
+
+            exercises = getExFromTable();
+            datas = JSON.stringify(exercises);
+
+            if (exercises.length == 0) {
+                Materialize.toast('Inserisci almeno un esercizio', delayTime);
+                add_sc = false;
+            }
+
+            var from = $('#from_date_schedule').val();
+            if (from.length == 0) {
+                Materialize.toast('Inserisci la data di inizio scheda', delayTime);
+                add_sc = false;
+            }
+
+            var to = $('#to_date_schedule').val();
+            if (to.length == 0) {
+                Materialize.toast('Inserisci la data di fine scheda', delayTime);
+                add_sc = false;
+            }
+
+            if(add_sc) {
+                datas = {'exercises' : exercises, 'from' : from, 'to' : to, 'type' : 'schedule'};
+                //datas = JSON.stringify(datas);
+                //alert(datas);
+                $.ajax({
+                    url: '/insertion',
+                    type: 'POST',
+                    data: datas,
+                    success: function (data) {
+                        alert(JSON.stringify(data));
+                        console.log(data);
+                    },
+                    error: function(data) {
+                        alert(JSON.stringify(data));
+                        console.log(data);
+                        Materialize.toast('Qualcosa è andato storto nella richiesta. Ricarica la pagina e riprova.', delayTime);
+                    }
+                });
+            }
+
+            return false;
+
+        }
+
+        function normalFunction() {
+
+            $('#exercise_name_2').attr('disabled', true);
+            $('#exercise_name_3').attr('disabled', true);
+            loadExerciseNameToList('specific');
+            $('#exercise_name_2').material_select();
+            $('#exercise_name_3').material_select();
+
+        }
+
+        function superserieFunction() {
+
+            $('#exercise_name_2').attr('disabled', false);
+            $('#exercise_name_3').attr('disabled', false);
+            loadExerciseNameToList('specific');
+            $('#exercise_name_2').material_select();
+            $('#exercise_name_3').material_select();
+
+        }
+
+        function pyramidalFunction() {
+
+            $('#exercise_name_2').attr('disabled', true);
+            $('#exercise_name_3').attr('disabled', true);
+            loadExerciseNameToList('specific');
+            $('#exercise_name_2').material_select();
+            $('#exercise_name_3').material_select();
+
+        }
+
+        function addExerciseToTable() {
+
+            window.exs = [];
+
+            // vai avanti fino a
+            var add_ex = true;
+
+            var ex = {};
+
+            var delayTime = 1000;
+
+            // form di registrazione
+            var insertScheduleForm = $('#insertSchedule');
+
+            // variabili non nullable
+            var group = $.trim($( "#exercise_name option:selected" ).attr('name'));
+            ex['group'] = group;
+            var difficulty = $('#difficulty').val();
+            ex['difficulty'] = difficulty;
+            var kind = 'Normale';
+            if ($('#superserie').is(':checked')) {
+                kind = 'Superserie';
+            } else if ($('#pyramidal').is(':checked')) {
+                kind = 'Piramidale';
+            }
+            ex['kind'] = kind;
+
+            var day = $.trim($("#day option:selected").text());
+
+            // isolo e controllo variabili
+            var name = $.trim($( "#exercise_name option:selected" ).text());
+            if (name.length == 0) {
+                Materialize.toast('Inserisci il nome dell\'esercizio.', delayTime);
+                add_ex = false;
+            }
+
+            var name_1 = name;
+            ex['name_1'] = $.trim($( "#exercise_name option:selected" ).val());
+
+            var name_2 = $.trim($( "#exercise_name_2 option:selected" ).text());
+            var name_3 = $.trim($( "#exercise_name_3 option:selected" ).text());
+            if(name_3 == 'Disabilitato') {
+                name_3 = '';
+            }
+
+            ex['name_2'] = $.trim($( "#exercise_name_2 option:selected" ).val());
+            ex['name_3'] = $.trim($( "#exercise_name_3 option:selected" ).val());
+
+            if(add_ex) {
+                if (kind == 'Superserie') {
+                    if (name_2.length + name_3.length == 0) {
+                        Materialize.toast('Inserisci almeno un nome di esercizio per la superserie.', delayTime);
+                        add_ex = false;
+                    } else {
+                        if (name_2.length > 0 && name_3.length == 0)
+                            name_1 = name + " - " + name_2;
+                        if (name_3.length > 0 && name_2.length == 0)
+                            name_1 = name + " - " + name_3;
+                        if (name_2.length > 0 && name_3.length > 0)
+                            name_1 = name + " - " + name_2 + " - " + name_3;
+                    }
+                } else {
+                    ex['name_2'] = -1;
+                    ex['name_3'] = -1;
+                }
+            }
+
+            if(add_ex) {
+                var serie = $.trim($( "#serie option:selected" ).val());
+                if (serie.length == 0) {
+                    Materialize.toast('Inserisci il numero di serie.', delayTime);
+                    add_ex = false;
+                }
+                ex['serie'] = serie;
+            }
+
+            if(add_ex) {
+                var repetition = $.trim($("#repetition").val());
+                if (repetition.length == 0) {
+                    Materialize.toast('Inserisci il numero di ripetizioni.', delayTime);
+                    add_ex = false;
+                }
+                ex['repetition'] = repetition;
+            }
+
+            if(add_ex) {
+                var execs = $.trim($("#execTimes").val());
+                var pauses = $.trim($("#pauseTimes").val());
+                var weights = $.trim($("#execWeights").val());
+                ex['execs'] = execs;
+                ex['pauses'] = pauses;
+                ex['pauses'] = pauses;
+
+                var exercise = {
+                    'type': 'exercise',
+                    'name': name,
+                    'name_2': name_2,
+                    'name_3': name_3,
+                    'group': group,
+                    'day' : day,
+                    'difficulty': difficulty,
+                    'kind': kind,
+                    'serie': serie,
+                    'repetition': repetition,
+                    'execs': execs,
+                    'pauses': pauses,
+                    'weights': weights
+                };
+
+                $('#exercise_body_table').append('<tr id="added_ex_'+window.exs.lenght+'" style="cursor: pointer;" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Trascina per spostare">' +
+                        '                             <td>'+name_1+'</td><input type="hidden" name="name_1" value="'+ex['name_1']+'"/><input type="hidden" name="name_2" value="'+ex['name_2']+'"/><input type="hidden" name="name_3" value="'+ex['name_3']+'"/>'+
+                        '                             <td>'+group+'</td>' +
+                        '                             <td>'+day+'</td>' +
+                        '                             <td>'+kind+'</td>' +
+                        '                             <td>'+serie+'</td>' +
+                        '                             <td>'+repetition+'</td>' +
+                        '                             <td>'+difficulty+'</td>' +
+                        '                             <td>'+weights+'</td>' +
+                        '                             <td>'+execs+'</td>' +
+                        '                             <td>'+pauses+'</td></tr>');
+                $("#sorted_table").tableDnD();
+                return false;
+            }
+
+            return false;
+        }
+
+        function getExFromTable() {
+
+            var exercises = {};
+            $('#exercise_body_table tr').each(function(ex_number, ex_row) {
+                console.log(ex_number);
+                exercises[ex_number] = {
+                    'type': 'exercise',
+                    'name': '',
+                    'name_2': '',
+                    'name_3': '',
+                    'group': '',
+                    'day' : '',
+                    'difficulty': '',
+                    'kind': '',
+                    'serie': '',
+                    'repetition': '',
+                    'execs': '',
+                    'pauses': '',
+                    'weights': ''
+                };
+                $(ex_row).find('td').each(function(col_number, col_content) {
+                    if(col_number == 0) {
+                        $(ex_row).find('input').each(function(name_number, name_content) {
+                            console.log($(name_content).val());
+                            if(name_number == 0) {
+                                exercises[ex_number]['name'] = $(name_content).val();
+                            }
+                            if(name_number == 1) {
+                                exercises[ex_number]['name_2'] = $(name_content).val();
+                            }
+                            if(name_number == 2) {
+                                exercises[ex_number]['name_3'] = $(name_content).val();
+                            }
+                        });
+                    } else {
+                        console.log($(col_content).text());
+                        if(col_number == 1) {
+                            exercises[ex_number]['group'] = $(col_content).text();
+                        }
+                        if(col_number == 2) {
+                            exercises[ex_number]['day'] = $(col_content).text();
+                        }
+                        if(col_number == 3) {
+                            exercises[ex_number]['kind'] = $(col_content).text();
+                        }
+                        if(col_number == 4) {
+                            exercises[ex_number]['serie'] = $(col_content).text();
+                        }
+                        if(col_number == 5) {
+                            exercises[ex_number]['repetition'] = $(col_content).text();
+                        }
+                        if(col_number == 6) {
+                            exercises[ex_number]['difficulty'] = $(col_content).text();
+                        }
+                        if(col_number == 7) {
+                            exercises[ex_number]['weights'] = $(col_content).text();
+                        }
+                        if(col_number == 8) {
+                            exercises[ex_number]['execs'] = $(col_content).text();
+                        }
+                        if(col_number == 9) {
+                            exercises[ex_number]['pauses'] = $(col_content).text();
+                        }
+                    }
+                });
+            });
+
+            return exercises;
+
+        }
+
+        function addExerciseNameToList() {
+
+            var add_ex = true;
+
+            var delayTime = 1000;
+
+            var group = $('input[name=muscle_group_list]:checked', '#insertSchedule').val();
+
+            // isolo e controllo variabili
+            var name = $.trim($("#ex_name").val());
+            if (name.length == 0) {
+                Materialize.toast('Inserisci il nome dell\'esercizio.', delayTime);
+                add_ex = false;
+            }
+
+            if(add_ex) {
+                $.ajax({
+                    url: '/insertion',
+                    type: 'POST',
+                    data: {'type' : 'exercise_name',
+                           'name' : name,
+                           'group' : group},
+                    success: function (data) {
+                        var list = $('#exercise_name');
+                        data = JSON.parse(data);
+                        console.log(data);
+                        list.empty();
+                        jQuery.each(data["ExerciseNames"], function(i, val) {
+                            list.append('<option value="'+val["Id"]+'" name="'+val["MuscleGroup"]+'">'+val["Name"]+'</option>');
+                        });
+                        $('select').material_select();
+                    },
+                    error: function(data) {
+                        console.log(data);
+                        Materialize.toast('Qualcosa è andato storto nella richiesta. Ricarica la pagina e riprova.', delayTime);
+                    }
+                });
+            }
+
+            return false;
+
+        }
+
+        function loadExerciseNameToList(filter) {
+
+            if(filter == 'specific') {
+                filter = $.trim($('#exercise_name option:selected').attr('name'));
+            }
+
+            var delayTime = 1000;
+
+            $.ajax({
+                url: '/listexnames',
+                type: 'POST',
+                success: function (data) {
+                    var list = $('#exercise_name');
+                    var list_2 = $('#exercise_name_2');
+                    var list_3 = $('#exercise_name_3');
+                    data = JSON.parse(data);
+                    // console.log(data);
+                    if(filter == 'all') {
+                        list.empty();
+                    }
+                    list_2.empty();
+                    list_3.empty();
+                    list_3.append('<option value="-1">Disabilitato</option>');
+                    var first = 0;
+                    jQuery.each(data, function(muscle_group, exs_list) {
+                        list.append('<optgroup label="'+muscle_group+'">');
+                        jQuery.each(exs_list, function(exindex, exinfo) {
+                            if (filter != 'all') {
+                                if (filter == exinfo["MuscleGroup"] && exinfo["Name"] != $.trim($("#exercise_name option:selected").text())) {
+                                    list_2.append('<option value="' + exinfo["Id"] + '" name="' + exinfo["MuscleGroup"] + '">' + exinfo["Name"] + '</option>');
+                                    if (first > 0) {
+                                        list_3.append('<option value="' + exinfo["Id"] + '" name="' + exinfo["MuscleGroup"] + '">' + exinfo["Name"] + '</option>');
+                                    } else {
+                                        first = 1;
+                                    }
+                                }
+                            } else {
+                                list.append('<option value="' + exinfo["Id"] + '" name="' + exinfo["MuscleGroup"] + '">' + exinfo["Name"] + '</option>');
+                                list_2.append('<option value="' + exinfo["Id"] + '" name="' + exinfo["MuscleGroup"] + '">' + exinfo["Name"] + '</option>');
+                                if (exindex > 0) {
+                                    list_3.append('<option value="' + exinfo["Id"] + '" name="' + exinfo["MuscleGroup"] + '">' + exinfo["Name"] + '</option>');
+                                }
+                            }
+                        });
+                        list.append('</optgroup>');
+                    });
+                    if(filter == 'all') {
+                        $('#exercise_name').material_select();
+                    }
+                    $('#exercise_name_2').material_select();
+                    $('#exercise_name_3').material_select();
+                },
+                error: function(data) {
+                    console.log(data);
+                    Materialize.toast('Qualcosa è andato storto nella richiesta. Ricarica la pagina e riprova.', delayTime);
+                }
+            });
+
+        }
+
+        $(document).ready(function() {
+            $('.datepicker').pickadate({
+                selectMonths: true, // Creates a dropdown to control month
+                format: 'd / m / yyyy'
+            });
+            loadExerciseNameToList('all');
+            $('#superserieDiv').hover(function() {
+                if(!$('#exercise_name_2').attr('disabled')) {
+                    $('#exercise_name_2').attr('disabled', true);
+                    $('#exercise_name_3').attr('disabled', true);
+                    loadExerciseNameToList('specific');
+                    $('#exercise_name_2').attr('disabled', false);
+                    $('#exercise_name_3').attr('disabled', false);
+                }
+            }, jQuery.noop);
+            $('#serie').material_select();
+            $('#day').material_select();
+            $('.modal-trigger').leanModal();
+        });
+
+        function enableDrop() {
+            $("#sorted_table").tableDnD({
+                onDragClass: "myDragClass",
+                onDrop: function (table, row) {
+                    var rows = table.tBodies[0].rows;
+                    var debugStr = "Row dropped was " + row.id + ". New order: ";
+                    for (var i = 0; i < rows.length; i++) {
+                        debugStr += rows[i].id + " ";
+                    }
+                    alert(debugStr);
+                },
+                onDragStart: function (table, row) {
+                    $('#debugArea').html("Started dragging row " + row.id);
+                }
+            });
+        }
+    </script>
+{% endblock %}

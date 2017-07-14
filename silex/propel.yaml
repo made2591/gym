@@ -1,0 +1,18 @@
+propel:
+  database:
+      connections:
+          gym:
+              adapter: mysql
+              classname: Propel\Runtime\Connection\ConnectionWrapper
+              dsn: "mysql:host=localhost;port=3306;dbname=gym"
+              user: root
+              password: root
+              attributes:
+  runtime:
+      defaultConnection: gym
+      connections:
+          - gym
+  generator:
+      defaultConnection: gym
+      connections:
+          - gym

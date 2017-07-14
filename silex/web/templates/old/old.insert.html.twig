@@ -1,0 +1,234 @@
+{% extends "../base.html.twig" %}
+
+{% block title %} Home {% endblock %}
+
+{% block container %}
+    <div class="row">
+        <br />
+        {% if type == 'exercise' %}
+            <form class="col s12" action="/insertion" method="post" id="insertExercise">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Nome esercizio e tipo* (es: Pressa o Pressa-Squat, nel caso di superserie)" id="name" name="name" type="text" class="validate">
+                        <label for="name">Nome esercizio e tipo*</label>
+                    </div>
+                </div>
+                {#<div class="row">#}
+                    {#<div class="input-field col s12">#}
+                        {#<label for="name">Gruppi muscolari</label><br/>#}
+                        {#<p>#}
+                            {#{% for mg in musclegroup %}#}
+                                {#<input type="checkbox" class="filled-in" id="{{ mg.id }}" value="{{ mg.id }}" name="muscle_group_list[]"/>#}
+                                {#<label for="{{ mg.id }}" style="min-width: 91px;">{{ mg.name }}</label>&nbsp;&nbsp;&nbsp;#}
+                            {#{% endfor %}#}
+                            {#<input type="checkbox" class="filled-in" id="new_mg" value="new_mg" name="muscle_group_list[]"/>#}
+                            {#<label for="new_mg" style="top: 12px !important;">#}
+                                {#<input placeholder="Nuovo gruppo muscolare" id="new_mg_name" name="new_mg_name" type="text" class="validate"  style="height: 24px !important;">#}
+                            {#</label>#}
+                        {#</p>#}
+                    {#</div>#}
+                {#</div>#}
+                <br />
+                <input type="hidden" id="type" name="type" value="{{ type }}"/>
+                <div class="center-align">
+                    <button class="btn waves-effect waves-light" type="submit" name="insert">Inserisci esercizio
+                        <i class="material-icons right">send</i>
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+
+        {% if type == 'musclegroup' %}
+            <form class="col s12" action="/insertion" method="post" id="insertMuscleGroup">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Nome gruppo muscolare* (es: Pettorali)" id="name" name="name" type="text" class="validate">
+                        <label for="name">Nome gruppo muscolare*</label>
+                    </div>
+                    {#<div class="input-field col s4">#}
+                        {#<label for="name">Difficoltà</label><br/>#}
+                        {#<p class="range-field">#}
+                            {#<input type="range" name="difficulty" id="difficulty" min="0" max="5" />#}
+                        {#</p>#}
+                    {#</div>#}
+                </div>
+                <br />
+                <input type="hidden" id="type" name="type" value="{{ type }}"/>
+                <div class="center-align">
+                    <button class="btn waves-effect waves-light" type="submit" name="insert">Inserisci gruppo muscolare
+                        <i class="material-icons right">send</i>
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+
+        {% if type == 'schedule' %}
+            <form class="col s12" action="/insertion" method="post" id="insertSchedule">
+                <div class="row">
+                    {% if exercise|length > 0 %}
+                    <div class="input-field col s4">
+                        <select id="exercise_name" name="exercise_name">
+                            <option value="new_ex">Nuovo esercizio</option>
+                            {% for ex in exercise %}
+                                <option value="{{ ex.id }}">{{ ex.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="exercise_name">Scegli esercizio</label>
+                    </div>
+                    {% endif %}
+                    <div class="input-field col s{% if exercise|length > 0 %}8{% else %}12{% endif %}">
+                        <input placeholder="Nuovo esercizio (es: Pressa o Pressa-Squat, nel caso di superserie)" id="new_ex" name="new_ex_name" type="text" class="validate">
+                        <label for="new_ex">Nuovo esercizio</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s2">
+                        <label for="name">Difficoltà</label><br/>
+                        <p class="range-field">
+                            <input type="range" name="difficulty" id="difficulty" min="0" max="5" />
+                        </p>
+                    </div>
+                    <div class="input-field col s2">
+                        <p>
+                            <input class="with-gap" type="radio" id="normal" name="kind" value="normal" checked/>
+                            <label for="normal">Normale</label>
+                            <input class="with-gap" type="radio" id="superserie" name="kind" value="superserie"/>
+                            <label for="superserie">Superserie</label>
+                            <input class="with-gap" type="radio" id="pyramidal" name="kind" value="pyramidal"/>
+                            <label for="pyramidal">Piramidale</label>
+                        </p>
+                    </div>
+                    <div class="input-field col s8">
+                        <label for="name">Gruppi muscolari</label><br/>
+                        <p>
+                            {% for index, mg in musclegroup %}
+                                <input type="radio" class="filled-in" id="{{ mg.id }}" value="{{ mg.id }}" name="muscle_group_list" {%  if index == 0 %}checked{% endif %}/>
+                                <label for="{{ mg.id }}" id="ex_name_{{ mg.id }}" style="min-width: 91px;">{{ mg.name }}</label>&nbsp;&nbsp;&nbsp;
+                            {% endfor %}
+                            <input type="radio" class="filled-in" id="new_mg" value="new_mg" name="muscle_group_list" {% if musclegroup|length == 0 %}checked{% endif %}/>
+                            <label for="new_mg" style="top: 12px !important;">
+                                <input placeholder="Nuovo gruppo muscolare" id="new_mg_name" name="new_mg_name" type="text" class="validate"  style="height: 24px !important;">
+                            </label>
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Numero di serie* (es: 12 o 12-8-6-4, nel caso di superserie)" id="serie" name="serie" type="text" class="validate">
+                        <label for="serie">Numero di serie*</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Numero di ripetizioni* (es: 12 o 12-8-6-4, nel caso di superserie/serie piramidali)" id="repetition" name="repetition" type="text" class="validate">
+                        <label for="repetition">Numero di ripetizioni*</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Peso/i (es: 12 o 12-8-6-4, nel caso di superserie/serie piramidali)" id="execWeights" name="execWeights" type="text" class="validate">
+                        <label for="execWeights">Peso/i</label>
+                    </div>
+                </div>
+                {#<div class="row">#}
+                {#<div class="input-field col s12">#}
+                {#<input placeholder="Tempo/i esecuzione/i (es: 12 o 12-8-6-4, nel caso di superserie/serie piramidali)" id="execTimes" name="execTimes" type="text" class="validate">#}
+                {#<label for="execTimes">Tempo/i di esecuzione/i</label>#}
+                {#</div>#}
+                {#</div>#}
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input placeholder="Tempo/i di pausa/e (es: 12 o 12-8-6-4, nel caso di superserie/serie piramidali)" id="pauseTimes" name="pauseTimes" type="text" class="validate">
+                        <label for="pauseTimes">Tempo/i di pausa/e</label>
+                    </div>
+                </div>
+                <input type="hidden" id="type" name="type" value="{{ type }}"/>
+                <div class="center-align">
+                    <button class="btn waves-effect waves-light red" onclick="return addExerciseToTable();">Aggiungi esercizio
+                        <i class="material-icons right">send</i>
+                    </button>
+                    <button class="btn waves-effect waves-light" type="submit" name="insert">Completa inserimento scheda
+                        <i class="material-icons right">send</i>
+                    </button>
+                </div>
+            </form>
+            <table class="striped" style="width: 100%;">
+                <thead>
+                <tr>
+                    <th data-field="name">Nome</th>
+                    <th data-field="kind">Gruppo muscolare</th>
+                    <th data-field="kind">Tipo</th>
+                    <th data-field="serie">Serie</th>
+                    <th data-field="repetition">Ripetizioni</th>
+                    <th data-field="kind">Difficoltà</th>
+                    <th data-field="repetition">Pesi</th>
+                    {#<th data-field="repetition">Tempi esecuzione</th>#}
+                    <th data-field="repetition">Pause</th>
+                </tr>
+                </thead>
+
+                <tbody id="exercise_body_table">
+                </tbody>
+            </table>
+
+        {% endif %}
+
+    </div>
+
+    <div class="fixed-action-btn horizontal click-to-toggle" style="bottom: 45px; right: 24px;">
+        <a class="btn-floating btn-large red">
+            <i class="large mdi-navigation-menu"></i>
+        </a>
+        <ul>
+            <li><a class="btn-floating red {% if type == 'exercise' %} disabled {% endif %}" {% if type != 'exercise' %} href="/insert/exercise" {% endif %}><i class="material-icons">toc</i></a></li>
+            <li><a class="btn-floating green {% if type == 'musclegroup' %} disabled {% endif %}" {% if type != 'musclegroup' %} href="/insert/musclegroup" {% endif %}><i class="material-icons">view_stream</i></a></li>
+            <li><a class="btn-floating blue {% if type == 'schedule' %} disabled {% endif %}" {% if type != 'schedule' %} href="/insert/schedule" {% endif %}><i class="material-icons">view_week</i></a></li>
+        </ul>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        function addExerciseToTable() {
+
+            var insertScheduleForm = $('#insertSchedule');
+
+            var name_selection = $("#exercise_name option:selected");
+            if (name_selection.val() == 'new_ex') {
+                var name = $("#new_ex").val();
+            } else {
+                var name = $("#exercise_name option:selected").text();
+            }
+            var kind = 'Normale';
+            if ($('#superserie').is(':checked')) {
+                kind = 'Superserie';
+            } else if ($('#pyramidal').is(':checked')) {
+                kind = 'Piramidale';
+            }
+            var temp = $('input[name=muscle_group_list]:checked', '#insertSchedule').val();
+            var group = $('#ex_name_'+temp).text();
+            var serie = $('#serie').val();
+            var repetition = $('#repetition').val();
+            var difficulty = $('#difficulty').val();
+            var weights = $('#execWeights').val();
+            var pauses = $('#pauseTimes').val();
+
+            $('#exercise_body_table').append('<tr><td>'+name+'</td>' +
+                    '                             <td>'+group+'</td>' +
+                    '                             <td>'+kind+'</td>' +
+                    '                             <td>'+serie+'</td>' +
+                    '                             <td>'+repetition+'</td>' +
+                    '                             <td>'+difficulty+'</td>' +
+                    '                             <td>'+weights+'</td>' +
+                    '                             <td>'+pauses+'</td></tr>');
+
+
+
+            return false;
+        }
+    $(document).ready(function() {
+        $('select').material_select();
+    });
+    </script>
+{% endblock %}
